@@ -19,14 +19,17 @@ def home():
         user = User.query.filter_by(author=form.author.data).first()
         if user is None:
             #supposed to create new users if none are found
-            user = User()
-            db.session.add(user)
-            db.session.commit(user)
+            new_user = User(author = form.author.data)
+            db.session.add(new_user)
+            db.session.commit()
+            
+            
 
             #supposed to create a row in message table  with user and add to database
-            message = db.Row(db.String(256))
-            db.session.add(message)
-            db.session.commit(message)
+            comment = Messages(message = form.message.data, user_id = User.query.filter_by(author = form.author.data).first().id)
+            db.session.add(comment)
+            db.session.commit()
+            
         
     posts = [
         {
@@ -38,6 +41,20 @@ def home():
             'message': 'Home. You?'
         }
     ]
+    
+    # this is supposed to get a list and then add it to posts
+    list_log = Messages.query.all()
+    
+    for l in list_log:
+    
+        list = [
+            {
+                'author': f'{User.query.filter_by(id = l.id).first().author}',
+                'message': f'{l.message}'
+            }         
+        ] 
+    
+        posts.append(list)
     # output all messages
     # create a list of dictionaries with the following structure
     # [{'author':'carlos', 'message':'Yo! Where you at?!'},
